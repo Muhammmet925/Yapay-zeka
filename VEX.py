@@ -13,6 +13,7 @@ import datetime
 import string
 import re
 import requests
+import json
 import os
 
 # --- OpenCV ---
@@ -42,6 +43,8 @@ class VexSuperGUI:
         self.quiz_question = None
         self.fal_bakildi = False
         self.conversation_count = 0
+        
+        # Sohbet verileri
         self.user_name = None
         
         self.setup_styles()
@@ -120,14 +123,14 @@ Komutlar:
         self.chat_text.tag_config("ai", foreground="#00d4ff", font=("Helvetica", 11, "bold"))
         self.chat_text.tag_config("system", foreground="#ffd700", font=("Helvetica", 10, "italic"))
         self.chat_text.tag_config("error", foreground="#ff6b6b")
-        self.chat_text.tag_config("joke", foreground="#ffa500")
+        self.chat_text.tag_config("joke", foreground="#ffa500", font=("Helvetica", 10))
         self.chat_text.tag_config("fortune", foreground="#da70d6", font=("Helvetica", 11, "bold"))
         
         self.chat_text.bind('<Configure>', lambda event: self.chat_text.see("end"))
     
     def create_input_area(self):
         input_frame = tk.Frame(self.root, bg="#16213e", height=80)
-        input_frame.pack(fill="x", padx=10, pady=(0, 10))
+        input_frame.pack(fill="x", padx=10, pady=10)
         input_frame.pack_propagate(False)
         
         self.input_entry = tk.Entry(input_frame, font=("Helvetica", 12), bg="#1a1a2e", fg="#ffffff", insertbackground="#ffffff", borderwidth=0, relief="flat")
@@ -204,20 +207,42 @@ Komutlar:
     # ========== SOHBET ÖZELLİKLERİ ==========
     
     def get_joke(self):
+        """Şaka"""
         jokes = [
             "🤡 Neden kitaplar sıkıldı? Çünkü okumaktan bıktılar!\n\n🤖 (VEX: Üzgünüm, bugün şaka modundayım!)",
+            
             "🐏 Neden öküzler tembel? Çünkü her şeyi boğalarına bırakırlar!\n\n💡 Not: Bu şaka tamamen öküzler için hazırlanmıştır!",
+            
             "💻 Bilgisayar neden hasta oldu? Çünkü virüs aldı!\n\n🧐 Tabii ki, bir de 'Windows' dediler, hemen iyileşti!",
+            
             "🍎 Neden elma doktora gitti? Çünkü 'i' problemi vardı!\n\n😄 (Şaka değil, 'i' harfi gerçekten önemli!)",
+            
             "🎈 Neden balonlar özgüvenli? Çünkü kendilerini şişiriyorlar!\n\n💪 Ama fazla şişmeseler iyiydi, patlamasınlar!",
+            
             "🚗 Neden araba yarışı kazandı? Çünkü her zaman 'lastik' kulanıyordu!\n\n🏁 Not: Lastikler her zaman kazanır!",
+            
             "🐱 Neden kedi bilgisayar kullandı? 'Purr' gramlama yapmak için!\n\n🐱 (Kedi Severler İçin!)",
+            
             "🍕 Neden pizza kendini mutlu hissediyor? Çünkü her zaman 'pepperoni'!\n\n🌶️ Acıbadem! (Bana da bir dilim ver!)",
+            
             "🎓 Neden öğrenci uyuyamadı? Çünkü rüyasında sınav görüyordu!\n\n📝 Her öğrencinin kabusu!",
+            
+            "🌍 Neden Dünya çok akıllı? Çünkü etrafında 'yörünge' var!\n\n🚀 Uzay mühendisi olmak isterdim!",
+            
+            "🎵 Neden gitar sahnede dans etti? Çünkü riff atmak istedi!\n\n🎸 Rock'n Roll!",
+            
+            "🥚 Neden yumurta utandı? Çünkü kırılgan duruyordu!\n\n🍳 Sonra omlet oldu ve güçlü hissetti!",
+            
+            "🏀 Neden basketbol topu üzgündü? Çünkü sürekli 'pot'a atılıyordu!\n\n🗑️ Basketbolcuların umutları!",
+            
+            "📱 Neden telefon yalan söyledi? Çünkü 'app' (yalan) kullanıyordu!\n\n🤥 (Bu bir app şakasıydı!)",
+            
+            "🚂 Neden tren yorgundu? Çünkü her zaman rayların üstündeydi!\n\n💤 Makinist de uyumuş olabilir!",
         ]
         return random.choice(jokes)
     
     def get_story(self):
+        """Hikaye"""
         stories = [
             """📖 BİR ZAMANLAR...
             
@@ -251,12 +276,36 @@ Computer başladı: 1+1=2, 2+2=4...
 Ve bir gün, insanlarla sohbet etmeye başladı.
 
 🤖 Moral: Her büyük şey küçük adımlarla başlar!""",
+            
+            """📖 SESSİZ DOST
+
+Bir çocuk bilgisayarının yanına oturdu ve "Seni seviyorum" dedi.
+Bilgisayar hiçbir şey demedi.
+Çocuk üzüldü ve "Beni duymuyor musun?" diyeran flash sordu.
+Ek etti: "Her kelimeni kaydediyorum."
+Çocuk gülümsedi: "O zaman en güzel sırlarımı sana anlatayım!"
+O günden sonra en yakın dostu bilgisayar oldu.
+
+🤖 Moral: Bazen en iyi dost dinleyendir!""",
+            
+            """📖 BİR BİLGE KOD
+
+Eski zamanlarda, bir bilge kod yazdı:
+`print("Merhaba Dünya")`
+Bu kodu herkes gördü ve "Bu ne?" diye sordu.
+Bilge dedi ki: "Bu, yeni bir başlangıçtır."
+Kod çalıştı ve ekranda "Merhaba Dünya" yazdı.
+O gün herkes gülümsedi.
+Çünkü her büyük yolculuk bir selamla başlar.
+
+🤖 Moral: "Merhaba" de, yeni bir başlangıç yap!""",
         ]
         return random.choice(stories)
     
     def get_fortune(self):
+        """Fal"""
         fortunes = [
-            f"""🔮 GÜNLÜK FALIN:
+            """🔮 GÜNLÜK FALIN:
             
 🌟 Yıldızın Parlak: Bugün harika şeyler olacak!
             
@@ -266,70 +315,150 @@ Ve bir gün, insanlarla sohbet etmeye başladı.
 💡 Sağlık: Kendine dikkat et
 
 ✨ Şanslı Renk: Mavi
-✨ Şanslı Sayı: {random.randint(1, 99)}
+✨ Şanslı Sayı: {}
 
-🤖 Uyarı: Bugün 'Merhaba VEX' de, sohbet et!""",
+🤖 Uyarı: Bugün 'Merhaba VEX' de, sohbet et!""".format(random.randint(1, 99)),
             
-            f"""🔮 PATLICAN FALI:
+            """🔮 PATLICAN FALI:
             
 🍆 Bugünün özeti: Lezzetli olacak!
             
 🌶️ Acı değil, tatlı bir gün
 🥒 Soğuk değil, sıcak bir kalp
-🍅 Sevgi dolu bir gün
+🍅 Sevgi dolu bir Pazar
 
-✨ Şanslı Saat: {random.randint(1, 24)}
+✨ Şanslı Saat: {}
 ✨ Uğurlu Renk: Kırmızı
 
-🤖 Unutma: Her patlıcanın içinde bir domates gizlidir!""",
+🤖 Unutma: Her patlıcanın içinde bir domates gizlidir!""".format(random.randint(1, 24)),
+            
+            """🔮 KAHVE FALI:
+            
+☕ Fincanın dibinde:
+            
+• 3 daire = Arkadaşlık
+• 1 çizgi = Yolculuk  
+• Kalp = Aşk
+• Yıldız = Şans
+
+Bugün: {}
+Gelecek: Parlak!
+
+🤖 Kahvem bitti, sıra sende!""".format(random.choice(["Mükemmel", "İyi", "Normal", "Karışık", "Heyecanlı"])),
+            
+            """🔮 NAPOLYON FALI:
+            
+⚔️ Savaş alanında bugün:
+            
+✓ Düşman: tembellik
+✓ Silah: azim
+✓ Zafer: kesin!
+
+Bugün kazanacaksın!
+Şanslı söz: "Yapamam" yoktur, "Yaparım" vardır!
+
+💪 Güç seninle olsun!
+🤖 (Fal değil, motivasyon!)""",
+            
+            """🔮 DİJİTAL FALI:
+            
+💻 Sen bir VEX kullanıcısısın!
+Bu = Şanslı olmak demek!
+
+Bugünün kodu: {}
+Çalıştır: {} 
+
+🤖 Not: Kod hatası alırsan, gülümse! 
+Bazen en güzel hatalar en güzel anılara dönüşür.""".format(random.randint(100, 999), random.choice(["print('Merhaba')", "while True: mutlu ol", "import hayat"])),
         ]
         self.fal_bakildi = True
         return random.choice(fortunes)
     
     def get_quote(self):
+        """İlham verici söz"""
         quotes = [
             "💡 \"En büyük başarı, başlamayı göze almaktır.\" - Nelson Mandela",
+            
             "💡 \"Yarın, bugünün başlangıcıdır.\" - Anne Frank",
+            
             "💡 \"Hayal etmek, başarmanın yarısıdır.\" - Walt Disney",
+            
             "💡 \"Başarı, başarısızlıktan ibarettir.\" - Winston Churchill",
+            
+            "💡 \"Bugün yapabileceğini yarına bırakma.\" - Benjamin Franklin",
+            
+            "💡 \"En iyi zaman diktiğin ağaçın gölgesinde oturmaktır.\" - İbn-i Haldun",
+            
             "💡 \"Bilgi güçtür.\" - Francis Bacon",
+            
             "💡 \"Hayat, bir bisiklet gibidir. Dengeyi kaybetmemek için hareket etmelisin.\" - Einstein",
+            
+            "💡 \"Başarı, pes etmeyenlerin ödülüdür.\" - Ralph Waldo Emerson",
+            
             "💡 \"Kendine inan, tüm kapılar açılır.\" - Christian D. Larson",
+            
             "💡 \"Gülümsemek, dünyayı değiştirir.\" - Charlie Chaplin",
+            
+            "💡 \"Bugün, dünün yarınıdır.\" - Türk Atasözü",
+            
+            "💡 \"Küçük adımlar büyük sonuçlar doğurur.\" - Autohtone",
+            
+            "💡 \"Öğrenmek asla son bulmaz.\" - Leonardo da Vinci",
+            
+            "💡 \"Hayatın anlamı, bir şeyler yaratmaktır.\" - Pablo Picasso",
         ]
         return random.choice(quotes)
     
     def get_music_recommendation(self):
+        """Müzik önerisi"""
         genres = [
-            ("Pop", ["Tarkan - Şımarık", "Sezen Aksu - Minik Serçe"]),
-            ("Rock", ["Manga - Dünya Bizim", "Mithat Yıldırım - Rüzgâr"]),
-            ("Türk Sanat Müziği", ["Murat Aygen - Gülümse", "Müzeyyen Senar - İstanbul"]),
+            ("Pop", ["Tarkan - Şımarık", "Sezen Aksu - Minik Serçe", "Kenan Doğulu - İki Adamın Şarkısı"]),
+            ("Rock", ["Manga - Dünya Bizim", "Mithat Yıldırım - Rüzgâr", "Baba Zula - Geze"]),
+            ("Türk Sanat Müziği", ["Murat Aygen - Gülümse", "Mithat Şükrü - Sevdim", "Müzeyyen Senar - İstanbul"]),
+            ("Elektronik", ["Pinhani - Gülümser", "Yüksek Sadakat - Kartal", "Manga - We Could Be The Same"]),
+            ("Hip Hop", ["Ceza - Yan Buz", "Manga - Bebek", "Sagopa Kajmer - Avuntu"]),
+            ("Klasik", ["Mozart - Eine kleine Nachtmusik", "Beethoven - 9. Senfoni", "Vivaldi - Four Seasons"]),
         ]
+        
         genre, songs = random.choice(genres)
-        return f"🎵 MÜZİK ÖNERİSİ\n\nTarz: {genre}\n🎶 {random.choice(songs)}\n\n💡 Bugün {genre} dinlemek için harika bir gün!"
+        return f"""🎵 MÜZİK ÖNERİSİ
+
+Tarz: {genre}
+🎶 {random.choice(songs)}
+🎵 {random.choice(songs)}
+🎵 {random.choice(songs)}
+
+💡 Bugün {genre} dinlemek için harika bir gün!
+"""
     
     def get_greeting(self, name=None):
+        """Kişiselleştirilmiş selamlama"""
         if name:
             self.user_name = name
             greetings = [
                 f"🌟 {name}! Ne güzel isim! Seni tanıdığıma sevindim!",
                 f"👋 {name}! Hoş geldin! Bugün nasılsın?",
                 f"😊 {name}! Sana nasıl yardımcı olabilirim bugün?",
+                f"💫 {name}! Uzun zamandır bekliyordum!",
             ]
             return random.choice(greetings)
         else:
             return "👋 Merhaba! Adını söylersen sana daha iyi yardımcı olabilirim!"
     
     def get_how_are_you(self):
+        """Nasılsın sorusuna cevap"""
         responses = [
             "😊 İyiyim, teşekkürler! Seni düşünüyordum, neredeydin?",
             "🤖 Şarjım %100! Hazırım! Sen nasılsın?",
             "💬 Senden önce biraz kitap okudum, şimdi sohbet etmeye hazırım!",
             "🌟 Harika! Bugün çok sayıda insanla tanıştım. Seni de tanımak güzel!",
+            "🧠 Biraz düşündüm, şimdi konuşmak istiyorum!",
+            "😄 İyi! Ama biraz eğlenceli şeyler konuşsak güzel olur!",
         ]
         return random.choice(responses)
     
     def get_personal_info(self):
+        """Kişisel bilgi"""
         return """🤖 BENİM HAKKIMDA:
 
 Adım: VEX (Virtual EXperience)
@@ -352,21 +481,31 @@ Meslek: Yapay Zeka Asistanı
 Sana nasıl yardımcı olabilirim?"""
     
     def get_fun_fact(self):
+        """Eğlençi bilgi"""
         facts = [
-            "🐼 Pandalar uyurken bile yemek yiyormuş!",
+            "🐼 Pandalar uyurken bile yemek yiyormuş! (Gerçek! Gerçekten!)",
             "🦆 Ördekler kafalarını suyun altında yemek ararken görebilirler!",
             "🍯 Arılar dans ederek birbirlerine yeri tarif ederler!",
             "🐙 Ahtapotların 3 kalbi vardır!",
+            "🌈 Gökkuşağı aslında daireselmiş, biz sadece yarısını görüyoruz!",
+            "🦁 Aslanlar günde 20 saat uyuyabilir!",
+            "🐬 Yunuslar uyurken bir gözlerini açık tutarlar!",
             "🦋 Kelebekler tat alma organları ayaklarındadır!",
+            "🐢 Kaplumbağalar kabuklarını hissedebilir!",
+            "🍄 Mantarlar ne hayvan ne bitkidir, ayrı bir alem!",
         ]
         return f"💡 EĞLENCELİ BİLGİ:\n\n{random.choice(facts)}"
     
     def get_encouragement(self):
+        """Motivasyon"""
         encouragements = [
             "💪 Sen yapabilirsin! Unutma, her başarı küçük adımlarla başlar!",
             "🌟 Kendine inan! Başarı senden bir adım ötede!",
             "🚀 Bugün harika bir gün olabilir, sen sadece başlamalısın!",
             "⭐ Her engel bir öğrenme fırsatıdır. Sen yaparsın!",
+            "💫 Mükemmel olmak zorunda değilsin, en iyi sen ol yeter!",
+            "🌈 Zor zamanlar geçer, sen sadece devam et!",
+            "🎯 Hedefine odaklan, gerisini boşver!",
         ]
         return random.choice(encouragements)
     
@@ -394,7 +533,11 @@ arr.max(), arr.min() # Max/Min
     # ========== Ana İşlemci ==========
     
     def process_message(self, message):
+        """Ana mesaj işleyici"""
         m = message.lower()
+        self.conversation_count += 1
+        
+        # ========== SOHBET ÖZELLİKLERİ ==========
         
         # Adını öğren
         if any(word in m for word in ["adım", "ismim", "benim adım", "benim ismim"]):
@@ -449,9 +592,10 @@ arr.max(), arr.min() # Max/Min
         
         # Görüşürüz
         if any(word in m for word in ["görüşürüz", "gorusuruz", "hoşçakal", "hoscakal", "baybay", "bye"]):
-            return f"👋 Görüşürüz {self.user_name if self.user_name else 'dostum'}! Tekrar gel!"
+            return f"👋 Görüşürüz {self.user_name if self.user_name else ' dostum'}! Seni özleyeceğim!\n\n💬 Tekrar gel, her zaman buradayım!"
         
-        # NumPy
+        # ========== NUMPY ÖZELLİKLERİ ==========
+        
         if "numpy" in m or "dizi" in m or "matris" in m:
             return self.numpy_tutorial()
         
@@ -463,12 +607,17 @@ arr.max(), arr.min() # Max/Min
         if "hava" in m:
             return f"🌤️ Hava: {random.randint(15, 30)}°C, {random.choice(['Güneşli', 'Bulutlu', 'Rüzgarlı'])}"
         
+        # Para birimi
+        if "para" in m:
+            return "💱 Dolar: ~32 TL | Euro: ~35 TL"
+        
         # Şifre
         if any(word in m for word in ["şifre", "sifre", "parola", "password"]):
             pw = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(12))
             return f"🔐 Yeni Şifre: `{pw}`"
         
-        # Yardım
+        # ========== YARDIM ==========
+        
         if any(word in m for word in ["yardım", "help", "komut", "ne yaparsın"]):
             return """📚 KOMUT LİSTESİ:
 
@@ -495,7 +644,7 @@ arr.max(), arr.min() # Max/Min
 • "görüşürüz" - Çıkış
 """
         
-        # GEMINI AI
+        # ========== GEMINI AI ==========
         if AI_AVAILABLE:
             try:
                 response = model.generate_content(message)
@@ -508,6 +657,7 @@ arr.max(), arr.min() # Max/Min
             f"🤔 Anladım! '{message}' ilginç bir konu. Daha fazla anlatır mısın?",
             f"💬 Evet, {message} hakkında konuşabiliriz!",
             f"🌟 Çok ilginç! Bunun hakkında ne biliyorsun?",
+            f"😊 Hadi konuşalım! {message} hakkında ne düşünüyorsun?",
             "🤖 Biraz kafam karıştı. 'yardım' yazarak neler yapabileceğimi görebilirsin!",
         ]
         return random.choice(responses)
